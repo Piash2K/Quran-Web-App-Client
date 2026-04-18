@@ -8,12 +8,13 @@ export const metadata: Metadata = {
   title: "Surah Directory",
 };
 
-export default async function Home() {
+export default async function Page() {
   let surahs: SurahListItem[] = [];
   let hasError = false;
 
   try {
-    surahs = await getSurahs();
+    const result = await getSurahs();
+    surahs = Array.isArray(result) ? (result as SurahListItem[]) : [];
   } catch {
     hasError = true;
   }
