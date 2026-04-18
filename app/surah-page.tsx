@@ -3,9 +3,19 @@
 import { SurahCard } from "@/components/surah-card";
 import { SITE_NAME } from "@/lib/constants";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { SurahListItem } from "@/lib/types";
 import Pagination from "./pagination";
 
+
+type SearchResultItem = {
+  surahNumber: number;
+  englishName: string;
+  arabicName: string;
+  ayahNumber: number;
+  arabic: string;
+  translation: string;
+};
 type SurahPageProps = {
   surahs: SurahListItem[];
   hasError: boolean;
@@ -13,14 +23,68 @@ type SurahPageProps = {
 
 const CARDS_PER_PAGE = 9;
 
+const SEARCH_API = process.env.NEXT_PUBLIC_API_BASE_URL
+  ? process.env.NEXT_PUBLIC_API_BASE_URL + "/search"
+  : "http://localhost:5000/search";
+
 export default function SurahPage({ surahs, hasError }: SurahPageProps) {
+  const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResultItem[] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  // removed unused searchError
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const pageParam = searchParams.get("page");
   const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
   const totalPages = Math.ceil(surahs.length / CARDS_PER_PAGE);
-  const paginatedSurahs = surahs.slice(
+
+
+  // Search ayahs by translation using backend API
+
+
+
+  useEffect(() => {
+    let ignore = false;
+    if (!search.trim()) {
+      return;
+    }
+    Promise.resolve().then(() => setSearchLoading(true));
+    fetch(`${SEARCH_API}?q=${encodeURIComponent(search)}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Search failed");
+        return res.json();
+      })
+      .then(data => {
+        if (!ignore) {
+          setSearchResults(data.data as SearchResultItem[]);
+        }
+      })
+      .catch(() => {
+        if (!ignore) setSearchResults([]);
+      })
+      .finally(() => {
+        if (!ignore) setSearchLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [search]);
+
+
+  // If searching, show only surahs with matching ayahs
+  let surahsToShow = surahs;
+  let ayahMatchesBySurah: Record<number, SearchResultItem[]> = {};
+  if (search.trim() && searchResults) {
+    ayahMatchesBySurah = searchResults.reduce((acc, item) => {
+      if (!acc[item.surahNumber]) acc[item.surahNumber] = [];
+      acc[item.surahNumber].push(item);
+      return acc;
+    }, {} as Record<number, SearchResultItem[]>);
+    surahsToShow = surahs.filter(surah => ayahMatchesBySurah[surah.surahNumber]);
+  }
+
+  const paginatedSurahs = surahsToShow.slice(
     (currentPage - 1) * CARDS_PER_PAGE,
     currentPage * CARDS_PER_PAGE
   );
@@ -39,9 +103,10 @@ export default function SurahPage({ surahs, hasError }: SurahPageProps) {
           </div>
 
           <div className="ml-auto hidden flex-1 justify-center md:flex">
-            <div
-              id="search-shortcut"
-              className="search-shell flex w-full max-w-112.5 items-center gap-3 rounded-2xl px-4 py-3"
+            <form
+              onSubmit={e => e.preventDefault()}
+              className="search-shell flex w-full max-w-112.5 items-center gap-3 rounded-2xl px-4 py-3 bg-white border border-yellow-200 shadow"
+              role="search"
             >
               <svg
                 aria-hidden="true"
@@ -54,8 +119,25 @@ export default function SurahPage({ surahs, hasError }: SurahPageProps) {
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-3.5-3.5" />
               </svg>
-              <span className="text-sm">Search ayahs...</span>
-            </div>
+              <input
+                type="text"
+                className="flex-1 bg-transparent outline-none text-base px-2"
+                placeholder="Search ayahs or surah..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Search ayahs or surah"
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="ml-2 text-yellow-700 hover:text-yellow-900"
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                >
+                  <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5"><path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                </button>
+              )}
+            </form>
           </div>
 
           <button
@@ -101,9 +183,31 @@ export default function SurahPage({ surahs, hasError }: SurahPageProps) {
         ) : (
           <>
             <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {paginatedSurahs.map((surah) => (
-                <SurahCard key={surah.surahNumber} surah={surah} />
-              ))}
+              {searchLoading ? (
+                <div className="col-span-full text-center text-yellow-700 py-12 text-lg">Searching...</div>
+              ) : paginatedSurahs.length === 0 ? (
+                <div className="col-span-full text-center text-yellow-700 py-12 text-lg">No surah or ayah found.</div>
+              ) : (
+                paginatedSurahs.map((surah) => (
+                  <div key={surah.surahNumber}>
+                    <SurahCard surah={surah} />
+                    {search.trim() && ayahMatchesBySurah[surah.surahNumber] && (
+                      <div className="mt-2 bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+                        <div className="font-semibold text-yellow-800 mb-1 text-sm">Matching Ayahs:</div>
+                        <ul className="space-y-1">
+                          {ayahMatchesBySurah[surah.surahNumber].map(match => (
+                            <li key={match.ayahNumber} className="text-sm">
+                              <span className="font-arabic-amiri text-lg mr-2">{match.arabic}</span>
+                              <span className="text-gray-700">{match.translation}</span>
+                              <span className="ml-2 text-yellow-700">(Ayah {match.ayahNumber})</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </section>
             <Pagination
               currentPage={currentPage}
