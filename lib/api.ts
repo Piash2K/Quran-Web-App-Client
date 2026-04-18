@@ -15,7 +15,7 @@ export async function getSurahById(id: string): Promise<QuranSurah> {
 import { ApiListResponse } from "@/lib/types";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://quran-web-app-server.vercel.app";
 
 async function fetchFromApi<T>(
   path: string,

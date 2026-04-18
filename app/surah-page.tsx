@@ -1,9 +1,10 @@
 "use client";
 
+
 import { SurahCard } from "@/components/surah-card";
 import { SITE_NAME } from "@/lib/constants";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { SurahListItem } from "@/lib/types";
 import Pagination from "./pagination";
 
@@ -25,24 +26,45 @@ const CARDS_PER_PAGE = 9;
 
 const SEARCH_API = process.env.NEXT_PUBLIC_API_BASE_URL
   ? process.env.NEXT_PUBLIC_API_BASE_URL + "/search"
-  : "http://localhost:5000/search";
+  : "https://quran-web-app-server.vercel.app/search";
 
-export default function SurahPage({ surahs, hasError }: SurahPageProps) {
+
+// Wrapper for Suspense boundary
+export default function SurahPageWrapper(props: SurahPageProps) {
+  return (
+    <Suspense fallback={<div className="py-12 text-center">Loading...</div>}>
+      <SurahPageClient {...props} />
+    </Suspense>
+  );
+}
+
+// Client component with hooks
+function SurahPageClient({ surahs, hasError }: SurahPageProps) {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResultItem[] | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
-  // removed unused searchError
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const pageParam = searchParams.get("page");
   const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
-  const totalPages = Math.ceil(surahs.length / CARDS_PER_PAGE);
+  // --- SEARCH LOGIC ---
+  let surahsToShow = surahs;
+  let ayahMatchesBySurah: Record<number, SearchResultItem[]> = {};
+  if (search.trim() && searchResults) {
+    ayahMatchesBySurah = searchResults.reduce((acc, item) => {
+      if (!acc[item.surahNumber]) acc[item.surahNumber] = [];
+      acc[item.surahNumber].push(item);
+      return acc;
+    }, {} as Record<number, SearchResultItem[]>);
+    surahsToShow = surahs.filter(surah => ayahMatchesBySurah[surah.surahNumber]);
+  }
+  const totalPages = Math.ceil(surahsToShow.length / CARDS_PER_PAGE);
 
-
-  // Search ayahs by translation using backend API
-
-
+  const paginatedSurahs = surahsToShow.slice(
+    (currentPage - 1) * CARDS_PER_PAGE,
+    currentPage * CARDS_PER_PAGE
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -72,22 +94,6 @@ export default function SurahPage({ surahs, hasError }: SurahPageProps) {
   }, [search]);
 
 
-  // If searching, show only surahs with matching ayahs
-  let surahsToShow = surahs;
-  let ayahMatchesBySurah: Record<number, SearchResultItem[]> = {};
-  if (search.trim() && searchResults) {
-    ayahMatchesBySurah = searchResults.reduce((acc, item) => {
-      if (!acc[item.surahNumber]) acc[item.surahNumber] = [];
-      acc[item.surahNumber].push(item);
-      return acc;
-    }, {} as Record<number, SearchResultItem[]>);
-    surahsToShow = surahs.filter(surah => ayahMatchesBySurah[surah.surahNumber]);
-  }
-
-  const paginatedSurahs = surahsToShow.slice(
-    (currentPage - 1) * CARDS_PER_PAGE,
-    currentPage * CARDS_PER_PAGE
-  );
 
   return (
     <main className="flex-1 pb-16 pt-0 md:pb-24">
