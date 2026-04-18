@@ -45,13 +45,13 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
           </li>
         ))}
       </ul>
-      <ul className="flex sm:hidden space-x-2">
+      <ul className="flex sm:hidden space-x-1">
         {/* Prev button */}
         <li>
           <button
             type="button"
             onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-            className="px-3 py-2 rounded-lg border text-base font-medium transition-colors duration-200 bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+            className="px-2 py-1 rounded-lg border text-xs font-medium transition-colors duration-200 bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"
             disabled={currentPage === 1}
             aria-label="Previous page"
           >
@@ -64,14 +64,14 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
               <button
                 type="button"
                 onClick={() => onPageChange(page)}
-                className={`px-3 py-2 rounded-lg border text-base font-medium transition-colors duration-200 ${currentPage === page ? "bg-yellow-600 text-white border-yellow-600" : "bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"}`}
+                className={`px-2 py-1 rounded-lg border text-xs font-medium transition-colors duration-200 ${currentPage === page ? "bg-yellow-600 text-white border-yellow-600" : "bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"}`}
                 aria-current={currentPage === page ? "page" : undefined}
               >
                 {page}
               </button>
             </li>
           ) : (
-            <li key={"ellipsis-" + idx} className="flex items-center px-1">…</li>
+            <li key={"ellipsis-" + idx} className="flex items-center px-0.5">…</li>
           )
         )}
         {/* Next button */}
@@ -79,7 +79,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
           <button
             type="button"
             onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-            className="px-3 py-2 rounded-lg border text-base font-medium transition-colors duration-200 bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"
+            className="px-2 py-1 rounded-lg border text-xs font-medium transition-colors duration-200 bg-white text-yellow-700 border-yellow-300 hover:bg-yellow-100"
             disabled={currentPage === totalPages}
             aria-label="Next page"
           >

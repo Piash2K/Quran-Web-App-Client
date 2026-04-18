@@ -39,6 +39,7 @@ export default function SurahPageWrapper(props: SurahPageProps) {
 }
 
 // Client component with hooks
+
 function SurahPageClient({ surahs, hasError }: SurahPageProps) {
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResultItem[] | null>(null);
@@ -46,26 +47,47 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  // Always get page param, but reset to 1 on search
   const pageParam = searchParams.get("page");
-  const currentPage = pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1;
+  const [currentPage, setCurrentPage] = useState(1);
+
+
+  // Remove setCurrentPage(1) from effect. Instead, reset page in search input handler.
+
   // --- SEARCH LOGIC ---
   let surahsToShow = surahs;
   let ayahMatchesBySurah: Record<number, SearchResultItem[]> = {};
-  if (search.trim() && searchResults) {
-    ayahMatchesBySurah = searchResults.reduce((acc, item) => {
-      if (!acc[item.surahNumber]) acc[item.surahNumber] = [];
-      acc[item.surahNumber].push(item);
-      return acc;
-    }, {} as Record<number, SearchResultItem[]>);
-    surahsToShow = surahs.filter(surah => ayahMatchesBySurah[surah.surahNumber]);
+  if (search.trim()) {
+    // Surah name search (case-insensitive, partial match)
+    const searchLower = search.trim().toLowerCase();
+    const surahNameMatches = surahs.filter(surah =>
+      surah.englishName.toLowerCase().includes(searchLower) ||
+      surah.arabicName.replace(/\s/g, "").includes(search.replace(/\s/g, ""))
+    ).map(surah => surah.surahNumber);
+
+    if (searchResults) {
+      ayahMatchesBySurah = searchResults.reduce((acc, item) => {
+        if (!acc[item.surahNumber]) acc[item.surahNumber] = [];
+        acc[item.surahNumber].push(item);
+        return acc;
+      }, {} as Record<number, SearchResultItem[]>);
+    }
+
+    // Show surahs that match by name or have ayah matches
+    surahsToShow = surahs.filter(surah =>
+      surahNameMatches.includes(surah.surahNumber) ||
+      (searchResults && ayahMatchesBySurah[surah.surahNumber])
+    );
   }
   const totalPages = Math.ceil(surahsToShow.length / CARDS_PER_PAGE);
 
+  // Always paginate from currentPage state (reset to 1 on search)
   const paginatedSurahs = surahsToShow.slice(
-    (currentPage - 1) * CARDS_PER_PAGE,
-    currentPage * CARDS_PER_PAGE
+    ((search.trim() ? currentPage : (pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1)) - 1) * CARDS_PER_PAGE,
+    ((search.trim() ? currentPage : (pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1))) * CARDS_PER_PAGE
   );
 
+  // Only fetch search results if search is not empty
   useEffect(() => {
     let ignore = false;
     if (!search.trim()) {
@@ -133,14 +155,33 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
                 className="flex-1 bg-transparent outline-none text-base px-2"
                 placeholder="Search ayahs or surah..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value;
+                  setSearch(value);
+                  setCurrentPage(1);
+                  if (searchParams.get("page") !== "1" && value.trim()) {
+                    router.push("?page=1");
+                  }
+                  if (!value.trim()) {
+                    setSearchResults(null);
+                    setSearchLoading(false);
+                  }
+                }}
                 aria-label="Search ayahs or surah"
               />
               {search && (
                 <button
                   type="button"
                   className="ml-2 text-yellow-700 hover:text-yellow-900"
-                  onClick={() => setSearch("")}
+                  onClick={() => {
+                    setSearch("");
+                    setCurrentPage(1);
+                    setSearchResults(null);
+                    setSearchLoading(false);
+                    if (searchParams.get("page") !== "1") {
+                      router.push("?page=1");
+                    }
+                  }}
                   aria-label="Clear search"
                 >
                   <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5"><path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
@@ -172,7 +213,13 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
                 className="flex-1 bg-transparent outline-none text-sm px-1"
                 placeholder="Search..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => {
+                  setSearch(e.target.value);
+                  setCurrentPage(1);
+                  if (searchParams.get("page") !== "1" && e.target.value.trim()) {
+                    router.push("?page=1");
+                  }
+                }}
                 aria-label="Search ayahs or surah"
               />
               {search && (
@@ -242,9 +289,15 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
               )}
             </section>
             <Pagination
-              currentPage={currentPage}
+              currentPage={search.trim() ? currentPage : (pageParam ? Math.max(1, parseInt(pageParam, 10) || 1) : 1)}
               totalPages={totalPages}
-              onPageChange={(page: number) => router.push(`?page=${page}`)}
+              onPageChange={(page: number) => {
+                if (search.trim()) {
+                  setCurrentPage(page);
+                } else {
+                  router.push(`?page=${page}`);
+                }
+              }}
             />
           </>
         )}
