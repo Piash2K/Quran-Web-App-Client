@@ -103,11 +103,14 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
             <div className="logo-badge flex h-10 w-10 items-center justify-center rounded-xl text-lg font-bold text-white">
               {"\u0642"}
             </div>
-            <p className="brand-title font-semibold leading-none">
+            <p className="brand-title font-semibold leading-none hidden md:block">
               {SITE_NAME}
             </p>
           </div>
 
+
+
+          {/* Search bar for desktop */}
           <div className="ml-auto hidden flex-1 justify-center md:flex">
             <form
               onSubmit={e => e.preventDefault()}
@@ -141,6 +144,45 @@ function SurahPageClient({ surahs, hasError }: SurahPageProps) {
                   aria-label="Clear search"
                 >
                   <svg viewBox="0 0 20 20" fill="none" className="w-5 h-5"><path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+                </button>
+              )}
+            </form>
+          </div>
+
+          {/* Compact search bar for mobile */}
+          <div className="w-full flex md:hidden mt-2">
+            <form
+              onSubmit={e => e.preventDefault()}
+              className="flex w-full items-center gap-2 rounded-lg px-2 py-1 bg-white border border-yellow-200 shadow"
+              role="search"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-5 w-5 text-yellow-700"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+              <input
+                type="text"
+                className="flex-1 bg-transparent outline-none text-sm px-1"
+                placeholder="Search..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                aria-label="Search ayahs or surah"
+              />
+              {search && (
+                <button
+                  type="button"
+                  className="ml-1 text-yellow-700 hover:text-yellow-900"
+                  onClick={() => setSearch("")}
+                  aria-label="Clear search"
+                >
+                  <svg viewBox="0 0 20 20" fill="none" className="w-4 h-4"><path d="M6 6l8 8M6 14L14 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
                 </button>
               )}
             </form>
