@@ -32,7 +32,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full scroll-smooth antialiased ${notoNaskhArabic.variable} ${amiri.variable}`}>
       <body className="min-h-full bg-white text-neutral-900">
-        <div className="relative flex min-h-screen flex-col">{children}</div>
+        <div className="relative flex min-h-screen flex-col">
+          {children}
+          <footer className="w-full border-t bg-yellow-50 py-6 mt-12">
+            <div className="app-container flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-yellow-900">
+              <span>&copy; {new Date().getFullYear()} Quran Web App</span>
+              <span className="opacity-70">Made with <span className="text-yellow-600">&#10084;&#65039;</span> for the Ummah</span>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );
