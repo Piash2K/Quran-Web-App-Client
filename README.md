@@ -1,36 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 🌙 Quran Web Application
 
-First, run the development server:
+A modern, fast, and responsive Quran web application built with **Next.js**, **Tailwind CSS**, and a **Node.js backend**.  
+Designed for a smooth reading experience with powerful search and customizable settings.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+## 🔗 Live Demo
+
+- 🌐 Frontend: https://quran-web-app-client.vercel.app/
+- ⚙️ Backend API: https://quran-web-app-server.vercel.app
+
+## ✨ Features
+
+### 📖 Surah List
+- Browse all **114 Surahs**
+- Displays **Arabic & English names**
+- Clean and paginated layout
+
+### 📜 Ayat View
+- Read all verses of a selected Surah
+- Includes:
+  - Arabic text
+  - English translation
+
+### 🔍 Search System
+- Search across the **entire Quran**
+- Instant results based on translation text
+- Paginated results for performance
+
+### ⚙️ Settings Panel
+Customize your reading experience:
+- Choose Arabic fonts:
+  - Amiri
+  - Noto Naskh
+- Adjust:
+  - Arabic font size
+  - Translation font size
+- Preferences saved using **localStorage**
+
+### 📱 Responsive UI
+- Fully mobile-friendly
+- Built with **Tailwind CSS only**
+- Clean, minimal design
+
+### 🧾 Global Footer
+- Simple and consistent footer across all pages
+
+## 🛠️ Tech Stack
+
+### Frontend
+- Next.js (App Router, SSG)
+- React
+- TypeScript
+- Tailwind CSS
+
+### Backend
+- Node.js
+- Express.js / Hono
+- REST API
+
+## 📂 Project Structure
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+quran-web-app/
+│
+├── client/        # Frontend (Next.js)
+├── server/        # Backend (Node.js API)
+└── README.md
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+````
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/your-username/quran-web-app.git
+cd quran-web-app
+````
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2️⃣ Setup Frontend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd client
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+### 3️⃣ Setup Backend
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cd server
+npm install
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 🌐 API Example
+
+```bash
+GET /surahs
+GET /surah/:id
+GET /search?q=keyword
+```
+
+## 🎯 Key Highlights
+
+* ⚡ Fast performance with **SSG**
+* 🔎 Powerful full-text search
+* 🎨 Customizable reading experience
+* 📱 Fully responsive design
+* 🧠 Clean and scalable architecture
+
+
+## 📌 Future Improvements
+
+* 🔊 Audio recitation support
+* 🌙 Dark mode toggle
+* 📌 Bookmark & favorites
+* 🌍 Multi-language translations
+
+## 🤝 Contributing
+
+Contributions are welcome!
+Feel free to fork the repo and submit a pull request.
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+## 💡 Author
+
+Developed by **Piash Islam**
