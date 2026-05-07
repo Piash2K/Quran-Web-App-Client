@@ -8,11 +8,16 @@ interface SurahListSidebarProps {
 }
 
 export default function SurahListSidebar({ surahs, currentSurahId }: SurahListSidebarProps) {
-  
   return (
-    <aside className="w-64 bg-neutral-900 text-white h-full flex flex-col border-r border-neutral-800 overflow-y-auto">
+    <aside
+      className="w-64 bg-neutral-900 text-white h-full flex flex-col border-r border-neutral-800"
+      style={{ minWidth: 256 }}
+    >
       <div className="p-4 font-bold text-lg border-b border-neutral-800">Surah</div>
-      <div className="flex-1">
+      <div
+        className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-yellow-700 scrollbar-track-neutral-900"
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#a16207 #171717' }}
+      >
         {surahs.map((surah) => (
           <Link
             key={surah.surahNumber}

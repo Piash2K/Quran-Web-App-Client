@@ -55,12 +55,15 @@ export default function SurahAyatPage({ surah, ayat }: SurahAyatPageProps) {
   return (
     <main className="flex min-h-screen bg-neutral-950">
       {/* Left Sidebar: Surah List */}
-      <div className="hidden md:block h-full sticky top-0">
-        <SurahListSidebar surahs={surahList} currentSurahId={surah.surahNumber} />
+      <div className="hidden md:flex h-screen">
+        <div className="w-64 h-screen overflow-y-auto">
+          <SurahListSidebar surahs={surahList} currentSurahId={surah.surahNumber} />
+        </div>
       </div>
 
+
       {/* Center: Surah Content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col h-screen overflow-y-auto scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
         <header className="bg-yellow-100 border-b px-4 py-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-yellow-800">{surah.englishName}</h1>
@@ -90,15 +93,17 @@ export default function SurahAyatPage({ surah, ayat }: SurahAyatPageProps) {
       </div>
 
       {/* Right Sidebar: Settings */}
-      <div className="hidden md:block h-full sticky top-0">
-        <SettingsSidebar
-          arabicFont={arabicFont}
-          setArabicFont={setArabicFont}
-          arabicFontSize={arabicFontSize}
-          setArabicFontSize={setArabicFontSize}
-          translationFontSize={translationFontSize}
-          setTranslationFontSize={setTranslationFontSize}
-        />
+      <div className="hidden md:flex h-screen">
+        <div className="w-72 h-screen overflow-y-auto">
+          <SettingsSidebar
+            arabicFont={arabicFont}
+            setArabicFont={setArabicFont}
+            arabicFontSize={arabicFontSize}
+            setArabicFontSize={setArabicFontSize}
+            translationFontSize={translationFontSize}
+            setTranslationFontSize={setTranslationFontSize}
+          />
+        </div>
       </div>
     </main>
   );
